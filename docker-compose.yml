@@ -1,0 +1,33 @@
+version: '3'
+services:
+  flask-app:
+    build: 
+      context: \flask-app
+    ports:
+      - "5000:5000"
+    environment:
+      - LOGSTASH_HOST=logstash
+    volumes:
+      - /var/log/flask:/var/log/flask
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.4.2
+    environment:
+      discovery.type: single-node
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.4.2
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    ports:
+      - 5601:5601
+  
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.13.2
+    ports:
+      - "5101:5101"
+    volumes:
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
